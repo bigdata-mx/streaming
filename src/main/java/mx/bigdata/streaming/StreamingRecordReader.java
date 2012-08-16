@@ -17,18 +17,23 @@
 package mx.bigdata.streaming;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Iterator;
 
 
-public final class StreamingRecordReader<T> implements Iterable<T> {
+public final class StreamingRecordReader<T> implements Iterable<T>, Closeable {
   
   private final BufferedReader reader;
   
   private final RecordBuilder<T> builder;
+
+  public static <T> StreamingRecordReader<T> newReader(Reader reader, RecordBuilder<T> builder) {
+    return new StreamingRecordReader<T>(reader, builder);
+  }
   
-  public StreamingRecordReader(Reader reader, RecordBuilder<T> builder) {
+  private StreamingRecordReader(Reader reader, RecordBuilder<T> builder) {
     this.reader = new BufferedReader(reader);
     this.builder = builder;
   }
@@ -59,6 +64,11 @@ public final class StreamingRecordReader<T> implements Iterable<T> {
       }
       
     };
+  }
+
+  @Override
+  public void close() throws IOException {
+    reader.close();
   }
   
 }
